@@ -47,7 +47,7 @@ jobs:
             cross: false
 
     steps:
-      - name: Clone repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Resume cache
@@ -59,6 +59,12 @@ jobs:
           key: ${{ matrix.target }}-release-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
             ${{ matrix.target }}-release
+      
+      - name: Install Dependencies (Ubuntu only)
+        if: startsWith(matrix.os, 'ubuntu-') 
+        run: | 
+          sudo apt update 
+          sudo apt install -y mingw-w64 mingw-w64-tools install mingw-w64-x86-64-dev
 
       - name: Build executable
         run: |
