@@ -40,7 +40,7 @@ jobs:
             postfix: ""
             cross: false
 
-          - os: macos-latest-xl
+          - os: macos-latest
             target: aarch64-apple-darwin
             release_name: osx-arm64
             postfix: ""
