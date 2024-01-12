@@ -91,4 +91,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           files: |
-            packages/*
+            ./packages/${{ env.BIN_NAME }}-linux-x64
+            ./packages/${{ env.BIN_NAME }}-win-x64.exe
+            ./packages/${{ env.BIN_NAME }}-osx-x64
+            ./packages/${{ env.BIN_NAME }}-osx-arm64
