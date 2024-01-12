@@ -71,8 +71,8 @@ jobs:
       - name: Pack binary (Ubuntu and macOS)
         if: matrix.os != 'windows-latest'
         run: |
-          cd target/release
-          zip -r ${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.tag }}.zip ./${{ env.BIN_NAME }}${{ matrix.postfix }}
+          cd target/${{ matrix.target }}/release/
+          zip -r ${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.tag }}.zip ${{ env.BIN_NAME }}${{ matrix.postfix }}
 
       - name: Pack binary (Windows)
         if: matrix.os == 'windows-latest'
