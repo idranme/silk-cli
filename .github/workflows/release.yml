@@ -64,7 +64,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu-') 
         run: | 
           sudo apt update
-          sudo apt install -y mingw-w64 mingw-w64-tools mingw-w64-x86-64-dev musl-tools
+          sudo apt install -y mingw-w64 mingw-w64-tools mingw-w64-x86-64-dev musl-tools libgcc
 
       - name: Build executable
         run: |
