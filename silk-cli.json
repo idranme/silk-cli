@@ -1,11 +1,11 @@
 {
-    "version": "0.2.3",
+    "version": "0.2.4",
     "description": "Tencent SILK codec",
     "homepage": "https://github.com/idanran/silk-cli",
     "license": "MIT",
     "architecture": {
         "64bit": {
-            "url": "https://mirror.ghproxy.com/https://github.com/idanran/silk-cli/releases/download/v0.2.3/silk-cli-win-x64-v0.2.3.zip"
+            "url": "https://mirror.ghproxy.com/https://github.com/idanran/silk-cli/releases/download/v0.2.4/silk-cli-win-x64-v0.2.4.zip"
         }
     },
     "bin": "silk-cli.exe",
