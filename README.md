@@ -37,3 +37,5 @@ Options:
   -h, --help                       Print help
   -V, --version                    Print version
 ```
+
+When mode is `encode`, input is mono pcm_s16le and output is silk.
