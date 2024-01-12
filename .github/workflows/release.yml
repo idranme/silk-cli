@@ -46,16 +46,6 @@ jobs:
         uses: devops-actions/action-get-tag@v1.0.2
         with:
           default: ${{ github.run_id }}
-
-      - name: Resume cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ matrix.target }}-release-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            ${{ matrix.target }}-release
       
       - name: Install dependencies (Ubuntu only)
         if: startsWith(matrix.os, 'ubuntu-') 
