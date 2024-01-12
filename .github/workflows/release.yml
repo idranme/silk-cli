@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 env:
   BIN_NAME: silk-cli
 
@@ -16,29 +17,35 @@ jobs:
           # Linux
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            release_name: linux-x64
+            rid: linux-x64
             postfix: ""
 
           # Windows
           - os: ubuntu-latest
             target: x86_64-pc-windows-gnu
-            release_name: win-x64
+            rid: win-x64
             postfix: ".exe"
 
           # Mac OSX
           - os: macos-latest
             target: x86_64-apple-darwin
-            release_name: osx-x64
+            rid: osx-x64
             postfix: ""
 
           - os: macos-latest
             target: aarch64-apple-darwin
-            release_name: osx-arm64
+            rid: osx-arm64
             postfix: ""
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Prepare Tag
+        id: tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "version=${GITHUB_REF##refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Resume cache
         uses: actions/cache@v3
@@ -64,13 +71,13 @@ jobs:
       - name: Rename binary
         run: |
           mv target/${{ matrix.target }}/release/${{ env.BIN_NAME }}${{ matrix.postfix }} ${{ env.BIN_NAME }}${{ matrix.postfix }}
-          zip -r ${{ env.BIN_NAME }}-${{ matrix.release_name }}.zip ${{ env.BIN_NAME }}${{ matrix.postfix }}
+          zip -r ${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.version }}.zip ${{ env.BIN_NAME }}${{ matrix.postfix }}
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: compile-${{ matrix.target }}
-          path: ${{ env.BIN_NAME }}-${{ matrix.release_name }}.zip
+          path: ${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.version }}.zip
 
   release:
     name: Release
@@ -80,6 +87,12 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+
+      - name: Prepare Tag
+        id: tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "version=${GITHUB_REF##refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Download binaries
         uses: actions/download-artifact@v4
@@ -94,7 +107,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           files: |
-            ./packages/${{ env.BIN_NAME }}-linux-x64.zip
-            ./packages/${{ env.BIN_NAME }}-win-x64.exe.zip
-            ./packages/${{ env.BIN_NAME }}-osx-x64.zip
-            ./packages/${{ env.BIN_NAME }}-osx-arm64.zip
+            ./packages/${{ env.BIN_NAME }}-linux-x64-${{ steps.tag.outputs.version }}.zip
+            ./packages/${{ env.BIN_NAME }}-win-x64-${{ steps.tag.outputs.version }}.zip
+            ./packages/${{ env.BIN_NAME }}-osx-x64-${{ steps.tag.outputs.version }}.zip
+            ./packages/${{ env.BIN_NAME }}-osx-arm64-${{ steps.tag.outputs.version }}.zip
