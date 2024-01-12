@@ -74,6 +74,7 @@ jobs:
     name: Release
     needs: [compile]
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
