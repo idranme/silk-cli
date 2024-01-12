@@ -22,7 +22,7 @@ jobs:
 
           # Windows
           - os: ubuntu-latest
-            target: x86_64-pc-windows-gnu
+            target: x86_64-pc-windows-msvc
             rid: win-x64
             postfix: ".exe"
 
@@ -61,7 +61,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu-') 
         run: | 
           sudo apt update
-          sudo apt install -y mingw-w64 mingw-w64-tools mingw-w64-x86-64-dev musl-tools
+          sudo apt install -y musl-tools
 
       - name: Build executable
         run: |
