@@ -21,7 +21,7 @@ jobs:
             postfix: ""
 
           # Windows
-          - os: ubuntu-latest
+          - os: windows-latest
             target: x86_64-pc-windows-msvc
             rid: win-x64
             postfix: ".exe"
@@ -41,11 +41,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare Tag
+      - name: Get tag
         id: tag
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          echo "version=${GITHUB_REF##refs/tags/}" >> $GITHUB_OUTPUT
+        uses: devops-actions/action-get-tag@v1.0.2
+        with:
+          default: ${{ github.run_id }}
 
       - name: Resume cache
         uses: actions/cache@v3
@@ -63,29 +63,27 @@ jobs:
           sudo apt update
           sudo apt install -y musl-tools
 
-      - name: Install dependencies of msvc
-        if: startsWith(matrix.target, 'x86_64-pc-windows-msvc') 
-        run: |
-          cargo install xwin
-          xwin --accept-license  splat --output /home/$USER/.xwin
-          sudo apt install lld
-          export RUSTFLAGS="-C link-arg=-fuse-ld=lld -C link-args='-Lnative=/home/landv/.xwin/crt/lib/x86_64 -Lnative=/home/landv/.xwin/sdk/lib/um/x86_64 -Lnative=/home/landv/.xwin/sdk/lib/ucrt/x86_64'"
-
       - name: Build executable
         run: |
           rustup target add ${{ matrix.target }}
           cargo build --release --target ${{ matrix.target }}
 
-      - name: Rename binary
+      - name: Pack binary (Ubuntu and macOS)
+        if: matrix.os != 'windows-latest'
         run: |
-          mv target/${{ matrix.target }}/release/${{ env.BIN_NAME }}${{ matrix.postfix }} ${{ env.BIN_NAME }}${{ matrix.postfix }}
-          zip -r ${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.version }}.zip ${{ env.BIN_NAME }}${{ matrix.postfix }}
+          cd target/release
+          zip -r ${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.tag }}.zip ${{ env.BIN_NAME }}${{ matrix.postfix }}
+
+      - name: Pack binary (Windows)
+        if: matrix.os == 'windows-latest'
+        run: Compress-Archive -CompressionLevel Optimal -Force -Path target/${{ matrix.target }}/release/${{ env.BIN_NAME }}${{ matrix.postfix }} -DestinationPath target/${{ matrix.target }}/release/${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.tag }}.zip
+        shell: pwsh
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: compile-${{ matrix.target }}
-          path: ${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.version }}.zip
+          path: target/${{ matrix.target }}/release/${{ env.BIN_NAME }}-${{ matrix.rid }}-${{ steps.tag.outputs.tag }}.zip
 
   release:
     name: Release
@@ -96,11 +94,11 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Prepare Tag
+      - name: Get tag
         id: tag
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          echo "version=${GITHUB_REF##refs/tags/}" >> $GITHUB_OUTPUT
+        uses: devops-actions/action-get-tag@v1.0.2
+        with:
+          default: ${{ github.run_id }}
 
       - name: Download binaries
         uses: actions/download-artifact@v4
@@ -115,7 +113,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           files: |
-            ./packages/${{ env.BIN_NAME }}-linux-x64-${{ steps.tag.outputs.version }}.zip
-            ./packages/${{ env.BIN_NAME }}-win-x64-${{ steps.tag.outputs.version }}.zip
-            ./packages/${{ env.BIN_NAME }}-osx-x64-${{ steps.tag.outputs.version }}.zip
-            ./packages/${{ env.BIN_NAME }}-osx-arm64-${{ steps.tag.outputs.version }}.zip
+            ./packages/${{ env.BIN_NAME }}-linux-x64-${{ steps.tag.outputs.tag }}.zip
+            ./packages/${{ env.BIN_NAME }}-win-x64-${{ steps.tag.outputs.tag }}.zip
+            ./packages/${{ env.BIN_NAME }}-osx-x64-${{ steps.tag.outputs.tag }}.zip
+            ./packages/${{ env.BIN_NAME }}-osx-arm64-${{ steps.tag.outputs.tag }}.zip
