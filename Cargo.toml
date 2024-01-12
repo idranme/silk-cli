@@ -1,0 +1,22 @@
+[package]
+name = "silk-cli"
+version = "0.2.0"
+edition = "2021"
+description = "Tencent SILK codec"
+keywords = ["cli", "silk", "tool", "codec"]
+categories = ["command-line-utilities"]
+license = "MIT"
+repository = "https://github.com/idanran/silk-cli"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap={ version="4.4.14", features=["derive"] }
+silk-rs="0.2.0"
+bytes="1.5.0"
+
+[profile.release]
+opt-level = 'z'
+lto = true
+codegen-units = 1
+strip = true

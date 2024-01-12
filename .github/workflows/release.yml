@@ -1,0 +1,98 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+env:
+  BIN_NAME: silk-cli
+
+jobs:
+  compile:
+    name: Compile
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          # Linux
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            release_name: linux-x64
+            postfix: ""
+            cross: true
+
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            release_name: linux-arm64
+            postfix: ""
+            cross: true
+
+          # Windows GNU
+          - os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
+            release_name: win-x64.exe
+            postfix: ".exe"
+            cross: true
+
+          # Mac OSX
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            release_name: osx-x64
+            postfix: ""
+            cross: false
+
+          - os: macos-latest-xl
+            target: aarch64-apple-darwin
+            release_name: osx-arm64
+            postfix: ""
+            cross: false
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Resume cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ matrix.target }}-release-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ matrix.target }}-release
+
+      - name: Build executable
+        run: |
+          rustup target ${{ matrix.target }}
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: Rename binary
+        run: mv target/${{ matrix.target }}/release/${{ env.BIN_NAME }}${{ matrix.postfix }} ${{ env.BIN_NAME }}-${{ matrix.release_name }}
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: compile-${{ matrix.target }}
+          path: ${{ env.BIN_NAME }}-${{ matrix.release_name }}
+
+  release:
+    name: Release
+    needs: [compile]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: compile-*
+          merge-multiple: true
+          path: ./packages
+
+      - name: Github release
+        uses: "softprops/action-gh-release@v1"
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        with:
+          files: |
+            packages/*
