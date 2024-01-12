@@ -22,7 +22,7 @@ jobs:
           # Windows
           - os: ubuntu-latest
             target: x86_64-pc-windows-gnu
-            release_name: win-x64.exe
+            release_name: win-x64
             postfix: ".exe"
 
           # Mac OSX
@@ -62,13 +62,15 @@ jobs:
           cargo build --release --target ${{ matrix.target }}
 
       - name: Rename binary
-        run: mv target/${{ matrix.target }}/release/${{ env.BIN_NAME }}${{ matrix.postfix }} ${{ env.BIN_NAME }}-${{ matrix.release_name }}
+        run: |
+          mv target/${{ matrix.target }}/release/${{ env.BIN_NAME }}${{ matrix.postfix }} ${{ env.BIN_NAME }}${{ matrix.postfix }}
+          zip -r ${{ env.BIN_NAME }}-${{ matrix.release_name }}.zip ${{ env.BIN_NAME }}${{ matrix.postfix }}
 
       - name: Upload binaries
         uses: actions/upload-artifact@v4
         with:
           name: compile-${{ matrix.target }}
-          path: ${{ env.BIN_NAME }}-${{ matrix.release_name }}
+          path: ${{ env.BIN_NAME }}-${{ matrix.release_name }}.zip
 
   release:
     name: Release
@@ -92,7 +94,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           files: |
-            ./packages/${{ env.BIN_NAME }}-linux-x64
-            ./packages/${{ env.BIN_NAME }}-win-x64.exe
-            ./packages/${{ env.BIN_NAME }}-osx-x64
-            ./packages/${{ env.BIN_NAME }}-osx-arm64
+            ./packages/${{ env.BIN_NAME }}-linux-x64.zip
+            ./packages/${{ env.BIN_NAME }}-win-x64.exe.zip
+            ./packages/${{ env.BIN_NAME }}-osx-x64.zip
+            ./packages/${{ env.BIN_NAME }}-osx-arm64.zip
