@@ -57,11 +57,19 @@ jobs:
           restore-keys: |
             ${{ matrix.target }}-release
       
-      - name: Install Dependencies (Ubuntu only)
+      - name: Install dependencies (Ubuntu only)
         if: startsWith(matrix.os, 'ubuntu-') 
         run: | 
           sudo apt update
           sudo apt install -y musl-tools
+
+      - name: Install dependencies of msvc
+        if: startsWith(matrix.target, 'x86_64-pc-windows-msvc') 
+        run: |
+          cargo install xwin
+          xwin --accept-license  splat --output /home/$USER/.xwin
+          sudo apt install lld
+          export RUSTFLAGS="-C link-arg=-fuse-ld=lld -C link-args='-Lnative=/home/landv/.xwin/crt/lib/x86_64 -Lnative=/home/landv/.xwin/sdk/lib/um/x86_64 -Lnative=/home/landv/.xwin/sdk/lib/ucrt/x86_64'"
 
       - name: Build executable
         run: |
