@@ -62,7 +62,7 @@ jobs:
 
       - name: Build executable
         run: |
-          rustup target ${{ matrix.target }}
+          rustup target add ${{ matrix.target }}
           cargo build --release --target ${{ matrix.target }}
 
       - name: Rename binary
