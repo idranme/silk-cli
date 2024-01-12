@@ -18,33 +18,23 @@ jobs:
             target: x86_64-unknown-linux-musl
             release_name: linux-x64
             postfix: ""
-            cross: true
 
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
-            release_name: linux-arm64
-            postfix: ""
-            cross: true
-
-          # Windows GNU
+          # Windows
           - os: ubuntu-latest
             target: x86_64-pc-windows-gnu
             release_name: win-x64.exe
             postfix: ".exe"
-            cross: true
 
           # Mac OSX
           - os: macos-latest
             target: x86_64-apple-darwin
             release_name: osx-x64
             postfix: ""
-            cross: false
 
           - os: macos-latest
             target: aarch64-apple-darwin
             release_name: osx-arm64
             postfix: ""
-            cross: false
 
     steps:
       - name: Checkout
@@ -64,7 +54,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu-') 
         run: | 
           sudo apt update
-          sudo apt install -y mingw-w64 mingw-w64-tools mingw-w64-x86-64-dev musl-tools libgcc
+          sudo apt install -y mingw-w64 mingw-w64-tools mingw-w64-x86-64-dev musl-tools
 
       - name: Build executable
         run: |
