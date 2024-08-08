@@ -19,4 +19,4 @@ bytes="1.7.1"
 opt-level = 's'
 lto = true
 codegen-units = 1
-strip = true
+strip = "debuginfo"
