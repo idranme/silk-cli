@@ -6,7 +6,7 @@ Tencent SILK codec
 
 ## Supported platforms
 
-On macOS, arm64 and x64 are supported. On Linux and Windows, only x64 is supported.
+On macOS and Windows, arm64 and x64 are supported. On Linux, only x64 is supported.
 
 ## Installation
 
