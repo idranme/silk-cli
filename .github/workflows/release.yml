@@ -60,6 +60,7 @@ jobs:
 
       - name: Build executable
         run: |
+          rustup update
           rustup target add ${{ matrix.target }}
           cargo build --release --target ${{ matrix.target }}
 
