@@ -20,10 +20,20 @@ jobs:
             rid: linux-x64
             postfix: ""
 
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+            rid: linux-arm64
+            postfix: ""
+
           # Windows
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             rid: win-x64
+            postfix: ".exe"
+
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            rid: win-arm64
             postfix: ".exe"
 
           # Mac OSX
@@ -43,7 +53,7 @@ jobs:
 
       - name: Get tag
         id: tag
-        uses: devops-actions/action-get-tag@v1.0.2
+        uses: devops-actions/action-get-tag@v1.0.3
         with:
           default: ${{ github.run_id }}
       
@@ -86,7 +96,7 @@ jobs:
 
       - name: Get tag
         id: tag
-        uses: devops-actions/action-get-tag@v1.0.2
+        uses: devops-actions/action-get-tag@v1.0.3
         with:
           default: ${{ github.run_id }}
 
@@ -98,12 +108,14 @@ jobs:
           path: ./packages
 
       - name: Github release
-        uses: "softprops/action-gh-release@v1"
+        uses: "softprops/action-gh-release@v2"
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         with:
           files: |
             ./packages/${{ env.BIN_NAME }}-linux-x64-${{ steps.tag.outputs.tag }}.zip
+            ./packages/${{ env.BIN_NAME }}-linux-arm64-${{ steps.tag.outputs.tag }}.zip
             ./packages/${{ env.BIN_NAME }}-win-x64-${{ steps.tag.outputs.tag }}.zip
+            ./packages/${{ env.BIN_NAME }}-win-arm64-${{ steps.tag.outputs.tag }}.zip
             ./packages/${{ env.BIN_NAME }}-osx-x64-${{ steps.tag.outputs.tag }}.zip
             ./packages/${{ env.BIN_NAME }}-osx-arm64-${{ steps.tag.outputs.tag }}.zip

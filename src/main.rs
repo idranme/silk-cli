@@ -36,7 +36,7 @@ fn main() {
     let input = std::fs::read(Path::new(&cli.input)).unwrap();
     match cli.mode {
         Mode::Encode => {
-            let output = encode_silk(input, cli.sample_rate, 25000, true).unwrap();
+            let output = encode_silk(input, cli.sample_rate, 34500, true).unwrap();
             std::fs::write(Path::new(&cli.output), &output[0..output.len() - 1]).unwrap();
 
             let mut offset = 10;
