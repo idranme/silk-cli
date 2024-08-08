@@ -20,11 +20,6 @@ jobs:
             rid: linux-x64
             postfix: ""
 
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
-            rid: linux-arm64
-            postfix: ""
-
           # Windows
           - os: windows-latest
             target: x86_64-pc-windows-msvc
@@ -114,7 +109,6 @@ jobs:
         with:
           files: |
             ./packages/${{ env.BIN_NAME }}-linux-x64-${{ steps.tag.outputs.tag }}.zip
-            ./packages/${{ env.BIN_NAME }}-linux-arm64-${{ steps.tag.outputs.tag }}.zip
             ./packages/${{ env.BIN_NAME }}-win-x64-${{ steps.tag.outputs.tag }}.zip
             ./packages/${{ env.BIN_NAME }}-win-arm64-${{ steps.tag.outputs.tag }}.zip
             ./packages/${{ env.BIN_NAME }}-osx-x64-${{ steps.tag.outputs.tag }}.zip
